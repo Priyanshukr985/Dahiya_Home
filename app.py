@@ -27,7 +27,7 @@ from flask import (
     url_for,
 )
 from psycopg.rows import dict_row
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -58,6 +58,7 @@ ADMIN_PASSWORD = os.environ.get(
 ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH", "")
 STRICT_SECURITY = env_flag("STRICT_SECURITY")
 RUNTIME_WARNINGS: list[str] = []
+DERIVED_ADMIN_PASSWORD_HASH = ""
 
 app = Flask(__name__)
 app.config.update(
@@ -156,14 +157,25 @@ def normalize_text(value: Any) -> str:
 
 def validate_runtime_configuration() -> None:
     issues: list[str] = []
+    global DERIVED_ADMIN_PASSWORD_HASH
+
     if SECRET_KEY_FROM_ENV in {"", INSECURE_SECRET_KEY}:
         issues.append("Set a strong SECRET_KEY environment variable.")
-    if not ADMIN_PASSWORD_HASH and ADMIN_PASSWORD in {
-        "",
-        INSECURE_DEFAULT_ADMIN_PASSWORD,
-    }:
+
+    if ADMIN_PASSWORD_HASH:
+        pass
+    elif ADMIN_PASSWORD:
+        if ADMIN_PASSWORD == INSECURE_DEFAULT_ADMIN_PASSWORD:
+            issues.append(
+                "Replace the default admin password and configure ADMIN_PASSWORD_HASH."
+            )
+        DERIVED_ADMIN_PASSWORD_HASH = generate_password_hash(ADMIN_PASSWORD)
         issues.append(
-            "Configure ADMIN_PASSWORD_HASH or a strong ADMIN_PASSWORD environment variable."
+            "ADMIN_PASSWORD is deprecated. Configure ADMIN_PASSWORD_HASH instead."
+        )
+    else:
+        issues.append(
+            "Configure ADMIN_PASSWORD_HASH with a generated password hash."
         )
 
     if not issues:
@@ -174,8 +186,11 @@ def validate_runtime_configuration() -> None:
 
     if not ADMIN_PASSWORD_HASH and not ADMIN_PASSWORD:
         globals()["ADMIN_PASSWORD"] = INSECURE_DEFAULT_ADMIN_PASSWORD
+        globals()["DERIVED_ADMIN_PASSWORD_HASH"] = generate_password_hash(
+            INSECURE_DEFAULT_ADMIN_PASSWORD
+        )
         issues.append(
-            "Local fallback enabled: admin login password temporarily defaults to 'admin123'."
+            "Local fallback enabled: admin login temporarily uses a generated hash for 'admin123'."
         )
 
     RUNTIME_WARNINGS.extend(issues)
@@ -292,11 +307,8 @@ app.jinja_env.globals["csrf_token"] = generate_csrf_token
 
 
 def verify_admin_password(password: str) -> bool:
-    if ADMIN_PASSWORD_HASH:
-        return check_password_hash(ADMIN_PASSWORD_HASH, password)
-    if ADMIN_PASSWORD:
-        return password == ADMIN_PASSWORD
-    return False
+    active_hash = ADMIN_PASSWORD_HASH or DERIVED_ADMIN_PASSWORD_HASH
+    return bool(active_hash) and check_password_hash(active_hash, password)
 
 
 def get_enquiry_or_404(enquiry_id: int) -> Any:
