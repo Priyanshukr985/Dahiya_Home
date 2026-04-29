@@ -1037,6 +1037,34 @@ a {
   cursor: pointer;
 }
 
+.lightbox-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.lightbox-arrow.prev {
+  left: 24px;
+}
+
+.lightbox-arrow.next {
+  right: 24px;
+}
+
+.lightbox-arrow.is-hidden {
+  display: none;
+}
+
 .gallery-item:hover img {
   transform: scale(1.08);
   filter: brightness(1);
@@ -2018,6 +2046,7 @@ a {
     border-bottom: 1px solid rgba(212, 175, 55, 0.1);
   }
 }
+
 
 
 

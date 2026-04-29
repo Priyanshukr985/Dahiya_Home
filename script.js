@@ -294,7 +294,11 @@ document.querySelectorAll('[data-listing-slider]').forEach((slider) => {
     const activeSlide = slides[activeIndex];
     const activeImg = activeSlide?.querySelector('img');
     if (activeImg) {
-      openImageLightbox(activeImg.currentSrc || activeImg.src, activeImg.alt);
+      const sliderImages = slides.map((slide) => {
+        const img = slide.querySelector('img');
+        return img ? { src: img.currentSrc || img.src, alt: img.alt } : null;
+      }).filter(Boolean);
+      openImageLightbox(activeImg.currentSrc || activeImg.src, activeImg.alt, sliderImages);
     }
   });
 });
@@ -303,14 +307,38 @@ document.querySelectorAll('[data-listing-slider]').forEach((slider) => {
 const imageLightbox = document.getElementById('imageLightbox');
 const lightboxImage = document.getElementById('lightboxImage');
 const lightboxClose = document.getElementById('lightboxClose');
+const lightboxPrev = document.getElementById('lightboxPrev');
+const lightboxNext = document.getElementById('lightboxNext');
+let activeLightboxImages = [];
+let activeLightboxIndex = 0;
 
-function openImageLightbox(src, alt) {
+function syncLightboxImage() {
+  if (!lightboxImage || !activeLightboxImages.length) return;
+  const current = activeLightboxImages[activeLightboxIndex];
+  lightboxImage.src = current.src;
+  lightboxImage.alt = current.alt || 'Expanded view';
+  const shouldHideArrows = activeLightboxImages.length < 2;
+  lightboxPrev?.classList.toggle('is-hidden', shouldHideArrows);
+  lightboxNext?.classList.toggle('is-hidden', shouldHideArrows);
+}
+
+function openImageLightbox(src, alt, images) {
   if (!imageLightbox || !lightboxImage) return;
-  lightboxImage.src = src;
-  lightboxImage.alt = alt || 'Expanded view';
+  activeLightboxImages = Array.isArray(images) && images.length ? images : [{ src, alt }];
+  const foundIndex = activeLightboxImages.findIndex((item) => item.src === src);
+  activeLightboxIndex = foundIndex >= 0 ? foundIndex : 0;
+  syncLightboxImage();
   imageLightbox.classList.add('open');
   imageLightbox.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+}
+
+function stepLightbox(direction) {
+  if (activeLightboxImages.length < 2) return;
+  activeLightboxIndex = direction === 'next'
+    ? (activeLightboxIndex + 1) % activeLightboxImages.length
+    : (activeLightboxIndex - 1 + activeLightboxImages.length) % activeLightboxImages.length;
+  syncLightboxImage();
 }
 
 function closeImageLightbox() {
@@ -318,7 +346,9 @@ function closeImageLightbox() {
   imageLightbox.classList.remove('open');
   imageLightbox.setAttribute('aria-hidden', 'true');
   lightboxImage.src = '';
-  document.body.classList.remove('menu-open');
+  activeLightboxImages = [];
+  activeLightboxIndex = 0;
+  document.body.style.overflow = document.body.classList.contains('menu-open') ? 'hidden' : '';
 }
 
 document.querySelectorAll('.listing-slide img, .gallery-item img, .overview-image-card img').forEach((img) => {
@@ -328,6 +358,8 @@ document.querySelectorAll('.listing-slide img, .gallery-item img, .overview-imag
 });
 
 lightboxClose?.addEventListener('click', closeImageLightbox);
+lightboxPrev?.addEventListener('click', () => stepLightbox('prev'));
+lightboxNext?.addEventListener('click', () => stepLightbox('next'));
 
 imageLightbox?.addEventListener('click', (event) => {
   if (event.target === imageLightbox) {
@@ -336,8 +368,16 @@ imageLightbox?.addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && imageLightbox?.classList.contains('open')) {
+  if (!imageLightbox?.classList.contains('open')) return;
+  if (event.key === 'Escape') {
     closeImageLightbox();
   }
+  if (event.key === 'ArrowLeft') {
+    stepLightbox('prev');
+  }
+  if (event.key === 'ArrowRight') {
+    stepLightbox('next');
+  }
 });
+
 
