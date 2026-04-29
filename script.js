@@ -24,7 +24,7 @@ window.addEventListener('scroll', () => {
 hamburger.addEventListener('click', () => {
   hamburger.classList.toggle('open');
   navLinks.classList.toggle('open');
-  document.body.style.overflow = navLinks.classList.contains('open') ? 'hidden' : '';
+  document.body.classList.toggle('menu-open', navLinks.classList.contains('open'));
 });
 
 // Close menu when a link is clicked
@@ -32,7 +32,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('click', () => {
     hamburger.classList.remove('open');
     navLinks.classList.remove('open');
-    document.body.style.overflow = '';
+    document.body.classList.remove('menu-open');
   });
 });
 
@@ -318,7 +318,7 @@ function closeImageLightbox() {
   imageLightbox.classList.remove('open');
   imageLightbox.setAttribute('aria-hidden', 'true');
   lightboxImage.src = '';
-  document.body.style.overflow = '';
+  document.body.classList.remove('menu-open');
 }
 
 document.querySelectorAll('.listing-slide img, .gallery-item img, .overview-image-card img').forEach((img) => {
@@ -340,3 +340,4 @@ document.addEventListener('keydown', (event) => {
     closeImageLightbox();
   }
 });
+
