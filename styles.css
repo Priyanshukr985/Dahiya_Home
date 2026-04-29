@@ -168,6 +168,14 @@ a {
   backdrop-filter: blur(10px);
 }
 
+#navbar.menu-open,
+#navbar.menu-open.scrolled {
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 20px 0;
+}
+
 .nav-container {
   max-width: var(--max-w);
   margin: 0 auto;
@@ -2046,6 +2054,7 @@ a {
     border-bottom: 1px solid rgba(212, 175, 55, 0.1);
   }
 }
+
 
 
 

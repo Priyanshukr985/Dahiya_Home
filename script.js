@@ -24,7 +24,9 @@ window.addEventListener('scroll', () => {
 hamburger.addEventListener('click', () => {
   hamburger.classList.toggle('open');
   navLinks.classList.toggle('open');
-  document.body.classList.toggle('menu-open', navLinks.classList.contains('open'));
+  const menuIsOpen = navLinks.classList.contains('open');
+  document.body.classList.toggle('menu-open', menuIsOpen);
+  navbar.classList.toggle('menu-open', menuIsOpen);
 });
 
 // Close menu when a link is clicked
@@ -33,6 +35,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
     hamburger.classList.remove('open');
     navLinks.classList.remove('open');
     document.body.classList.remove('menu-open');
+    navbar.classList.remove('menu-open');
   });
 });
 
@@ -379,5 +382,6 @@ document.addEventListener('keydown', (event) => {
     stepLightbox('next');
   }
 });
+
 
 
