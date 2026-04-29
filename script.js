@@ -354,7 +354,24 @@ function closeImageLightbox() {
   document.body.style.overflow = document.body.classList.contains('menu-open') ? 'hidden' : '';
 }
 
-document.querySelectorAll('.listing-slide img, .gallery-item img, .overview-image-card img').forEach((img) => {
+document.querySelectorAll('.listing-slide img').forEach((img) => {
+  img.addEventListener('click', () => {
+    openImageLightbox(img.currentSrc || img.src, img.alt);
+  });
+});
+
+const galleryImages = Array.from(document.querySelectorAll('.gallery-item img')).map((img) => ({
+  src: img.currentSrc || img.src,
+  alt: img.alt
+}));
+
+document.querySelectorAll('.gallery-item img').forEach((img) => {
+  img.addEventListener('click', () => {
+    openImageLightbox(img.currentSrc || img.src, img.alt, galleryImages);
+  });
+});
+
+document.querySelectorAll('.overview-image-card img').forEach((img) => {
   img.addEventListener('click', () => {
     openImageLightbox(img.currentSrc || img.src, img.alt);
   });
@@ -382,6 +399,8 @@ document.addEventListener('keydown', (event) => {
     stepLightbox('next');
   }
 });
+
+
 
 
 
