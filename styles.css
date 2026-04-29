@@ -1,4 +1,4 @@
-/* ===== RESET & BASE ===== */
+﻿/* ===== RESET & BASE ===== */
 *,
 *::before,
 *::after {
@@ -841,7 +841,7 @@ a {
 
 .listings-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -2008,3 +2008,4 @@ a {
     border-bottom: 1px solid rgba(212, 175, 55, 0.1);
   }
 }
+
