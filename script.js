@@ -21,22 +21,18 @@ window.addEventListener('scroll', () => {
 });
 
 /* ===== HAMBURGER MENU ===== */
-function setMobileMenuState(isOpen) {
-  hamburger.classList.toggle('open', isOpen);
-  navLinks.classList.toggle('open', isOpen);
-  navbar.classList.toggle('menu-open', isOpen);
-  document.body.style.overflow = isOpen ? 'hidden' : '';
-}
-
 hamburger.addEventListener('click', () => {
-  const isOpening = !navLinks.classList.contains('open');
-  setMobileMenuState(isOpening);
+  hamburger.classList.toggle('open');
+  navLinks.classList.toggle('open');
+  document.body.style.overflow = navLinks.classList.contains('open') ? 'hidden' : '';
 });
 
 // Close menu when a link is clicked
 document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('click', () => {
-    setMobileMenuState(false);
+    hamburger.classList.remove('open');
+    navLinks.classList.remove('open');
+    document.body.style.overflow = '';
   });
 });
 
@@ -67,29 +63,6 @@ document.querySelectorAll('.plan-tab').forEach(tab => {
     document.querySelectorAll('.plan-content').forEach(c => c.classList.add('hidden'));
     tab.classList.add('active');
     document.getElementById('plan-' + plan).classList.remove('hidden');
-  });
-});
-
-/* ===== IMAGE FALLBACKS ===== */
-const defaultImageFallbacks = [
-  ['/assets/images/listing-3-house.jpg', '/assets/images_2/listing_4.jpeg'],
-  ['/assets/images_2/listing_4.jpeg', '/assets/images/listing-2-house.jpg']
-];
-
-document.querySelectorAll('img').forEach((img) => {
-  img.addEventListener('error', () => {
-    if (img.dataset.fallbackApplied === 'true') return;
-
-    const currentPath = new URL(img.currentSrc || img.src, window.location.origin).pathname;
-    const mappedFallback = defaultImageFallbacks.find(([source]) => source === currentPath)?.[1];
-    const typeFallback = img.alt.toLowerCase().includes('floor')
-      ? '/assets/images/listing-2-floor.jpg'
-      : '/assets/images/listing-2-house.jpg';
-    const fallbackSrc = img.dataset.fallbackSrc || mappedFallback || typeFallback;
-
-    if (!fallbackSrc || fallbackSrc === currentPath) return;
-    img.dataset.fallbackApplied = 'true';
-    img.src = fallbackSrc;
   });
 });
 
@@ -321,15 +294,7 @@ document.querySelectorAll('[data-listing-slider]').forEach((slider) => {
     const activeSlide = slides[activeIndex];
     const activeImg = activeSlide?.querySelector('img');
     if (activeImg) {
-      const slideImages = slides
-        .map((slide) => slide.querySelector('img'))
-        .filter(Boolean);
-      openImageLightbox(
-        activeImg.currentSrc || activeImg.src,
-        activeImg.alt,
-        slideImages,
-        activeIndex
-      );
+      openImageLightbox(activeImg.currentSrc || activeImg.src, activeImg.alt);
     }
   });
 });
@@ -338,40 +303,14 @@ document.querySelectorAll('[data-listing-slider]').forEach((slider) => {
 const imageLightbox = document.getElementById('imageLightbox');
 const lightboxImage = document.getElementById('lightboxImage');
 const lightboxClose = document.getElementById('lightboxClose');
-const lightboxPrev = document.getElementById('lightboxPrev');
-const lightboxNext = document.getElementById('lightboxNext');
-const galleryImages = Array.from(document.querySelectorAll('#gallery img'));
-let activeGalleryItems = [];
-let activeGalleryIndex = -1;
 
-function syncLightboxImage(src, alt) {
+function openImageLightbox(src, alt) {
   if (!imageLightbox || !lightboxImage) return;
   lightboxImage.src = src;
   lightboxImage.alt = alt || 'Expanded view';
-}
-
-function updateLightboxNav() {
-  const hasGalleryNav = activeGalleryItems.length > 1 && activeGalleryIndex >= 0;
-  lightboxPrev?.classList.toggle('hidden', !hasGalleryNav);
-  lightboxNext?.classList.toggle('hidden', !hasGalleryNav);
-}
-
-function openImageLightbox(src, alt, items = [], index = -1) {
-  if (!imageLightbox || !lightboxImage) return;
-  activeGalleryItems = items;
-  activeGalleryIndex = index;
-  syncLightboxImage(src, alt);
-  updateLightboxNav();
   imageLightbox.classList.add('open');
   imageLightbox.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
-}
-
-function showAdjacentGalleryImage(direction) {
-  if (!activeGalleryItems.length || activeGalleryIndex < 0) return;
-  activeGalleryIndex = (activeGalleryIndex + direction + activeGalleryItems.length) % activeGalleryItems.length;
-  const nextImage = activeGalleryItems[activeGalleryIndex];
-  syncLightboxImage(nextImage.currentSrc || nextImage.src, nextImage.alt);
 }
 
 function closeImageLightbox() {
@@ -379,40 +318,16 @@ function closeImageLightbox() {
   imageLightbox.classList.remove('open');
   imageLightbox.setAttribute('aria-hidden', 'true');
   lightboxImage.src = '';
-  activeGalleryItems = [];
-  activeGalleryIndex = -1;
-  updateLightboxNav();
   document.body.style.overflow = '';
 }
 
-galleryImages.forEach((img, index) => {
+document.querySelectorAll('.listing-slide img, .gallery-item img, .overview-image-card img').forEach((img) => {
   img.addEventListener('click', () => {
-    openImageLightbox(img.currentSrc || img.src, img.alt, galleryImages, index);
-  });
-});
-
-document.querySelectorAll('.listing-slide img, .overview-image-card img').forEach((img) => {
-  img.addEventListener('click', () => {
-    const slider = img.closest('[data-listing-slider]');
-    if (slider) {
-      const slideImages = Array.from(slider.querySelectorAll('.listing-slide img'));
-      const imageIndex = slideImages.indexOf(img);
-      openImageLightbox(
-        img.currentSrc || img.src,
-        img.alt,
-        slideImages,
-        imageIndex
-      );
-      return;
-    }
-
     openImageLightbox(img.currentSrc || img.src, img.alt);
   });
 });
 
 lightboxClose?.addEventListener('click', closeImageLightbox);
-lightboxPrev?.addEventListener('click', () => showAdjacentGalleryImage(-1));
-lightboxNext?.addEventListener('click', () => showAdjacentGalleryImage(1));
 
 imageLightbox?.addEventListener('click', (event) => {
   if (event.target === imageLightbox) {
@@ -423,11 +338,5 @@ imageLightbox?.addEventListener('click', (event) => {
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && imageLightbox?.classList.contains('open')) {
     closeImageLightbox();
-  }
-  if (event.key === 'ArrowLeft' && imageLightbox?.classList.contains('open')) {
-    showAdjacentGalleryImage(-1);
-  }
-  if (event.key === 'ArrowRight' && imageLightbox?.classList.contains('open')) {
-    showAdjacentGalleryImage(1);
   }
 });

@@ -1,4 +1,4 @@
-﻿/* ===== RESET & BASE ===== */
+/* ===== RESET & BASE ===== */
 *,
 *::before,
 *::after {
@@ -164,13 +164,6 @@ a {
   backdrop-filter: blur(10px);
 }
 
-#navbar.menu-open {
-  background: transparent;
-  box-shadow: none;
-  padding: 20px 0;
-  backdrop-filter: none;
-}
-
 .nav-container {
   max-width: var(--max-w);
   margin: 0 auto;
@@ -287,7 +280,7 @@ a {
   inset: 0;
   background:
     linear-gradient(135deg, rgba(26, 26, 26, 0.92) 0%, rgba(26, 26, 26, 0.6) 50%, rgba(26, 26, 26, 0.8) 100%),
-    url('/assets/images/hero_banner_1773500143525.png') center/cover no-repeat;
+    url('assets/images/hero_banner_1773500143525.png') center/cover no-repeat;
   background-color: var(--charcoal);
 }
 
@@ -848,7 +841,7 @@ a {
 
 .listings-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -865,11 +858,11 @@ a {
 
 .listing-image-wrap {
   position: relative;
-  height: 320px;
+  height: 360px;
 }
 
 .listing-slider {
-  height: 360px;
+  height: 420px;
   background: #f0f0f0;
 }
 
@@ -932,12 +925,12 @@ a {
 }
 
 .listing-content {
-  padding: 14px;
+  padding: 16px;
 }
 
 .listing-content h3 {
   font-family: var(--font-head);
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin-bottom: 8px;
   color: var(--text-dark);
 }
@@ -945,12 +938,8 @@ a {
 .listing-area {
   color: var(--gold-dark);
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   margin-bottom: 10px;
-}
-
-.listing-points li {
-  font-size: 0.95rem;
 }
 
 .listing-points {
@@ -1042,29 +1031,6 @@ a {
   font-size: 1.15rem;
   line-height: 1;
   cursor: pointer;
-}
-
-.lightbox-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
-  font-size: 1.15rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.lightbox-nav.prev {
-  left: 16px;
-}
-
-.lightbox-nav.next {
-  right: 16px;
 }
 
 .gallery-item:hover img {
